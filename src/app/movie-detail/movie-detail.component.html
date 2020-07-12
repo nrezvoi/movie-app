@@ -1,0 +1,14 @@
+<div class="movie">
+  <img class="movie__poster" [src]="movie.Poster" [alt]="movie.Title" />
+  <div class="movie__info">
+    <div class="movie__title">{{ movie.Title }}</div>
+    <div class="movie__meta">
+      <div>Year: {{ movie.Year }}</div>
+      <div>Type: {{ movie.Type }}</div>
+      <div>IMDB Rating: {{ movie.imdbRating }}</div>
+      <div>Genre: {{ movie.Genre }}</div>
+      <div>Runtime: {{ movie.Runtime }}</div>
+    </div>
+    <div class="movie__plot">{{ movie.Plot }}</div>
+  </div>
+</div>
