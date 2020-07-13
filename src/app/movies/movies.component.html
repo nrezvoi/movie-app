@@ -1,19 +1,18 @@
 <div class="movies">
   <div class="movies__title">Movie search tool</div>
-  <form
-    (submit)="onSearch($event)"
-    class="search-form movies__search-form"
-  >
+
+  <div class="movies__search-form">
     <input
       autofocus
       class="search-form__input"
       type="text"
-      [(ngModel)]="searchQuery"
-      name="query"
+      (keyup)="onSearch(search.value, $event)"
+      #search
     />
-  </form>
+  </div>
+
   <div class="movies-grid movies__grid">
-    <div *ngFor="let movie of movies" class="movies-grid__item">
+    <div *ngFor="let movie of movies$ | async" class="movies-grid__item">
       <a [routerLink]="['/movies/' + movie.imdbID]">
         <img
           [src]="movie.Poster"
