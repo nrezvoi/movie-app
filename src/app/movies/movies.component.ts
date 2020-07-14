@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { merge, Observable, of, Subject } from 'rxjs';
-import { distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
+import { distinctUntilChanged, filter, pluck, share, switchMap, tap, shareReplay, debounceTime, delay, finalize, defaultIfEmpty } from 'rxjs/operators';
 import { Movie } from "../models/Movie.model";
 import { MovieService } from "../services/movie.service";
 
@@ -14,16 +14,26 @@ export class MoviesComponent implements OnInit {
 
   movies$: Observable<Movie[]>
   private searchQuery$ = new Subject<string>()
+  private currentQuery$: Observable<String>
+
+  @ViewChild('search')
+  searchEl: ElementRef
+
+  errorMsg$: Observable<string>
+
+  isLoading: boolean = false
 
   constructor(private movieService: MovieService, private router: Router, private currentRoute: ActivatedRoute) {
   }
-
   ngOnInit(): void {
-    const currentQuery = of(this.currentRoute.snapshot.queryParamMap.get('search'))
+    this.currentQuery$ = of(this.currentRoute.snapshot.queryParamMap.get('search')).pipe(
+      share()
+    )
     this.movies$ = merge(
-      currentQuery,
+      this.currentQuery$,
       this.searchQuery$
     ).pipe(
+      filter((query: String) => query && query.trim() !== ''),
       distinctUntilChanged(),
       tap((query: string) => {
         this.router.navigate([], {
@@ -32,14 +42,36 @@ export class MoviesComponent implements OnInit {
           }
         })
       }),
-      switchMap((query: string) => this.movieService.findBySearch(query)),
+      switchMap((query: string) => {
+        this.isLoading = true
+        const search$ = this.movieService.findBySearch(query).pipe(
+          shareReplay(),
+          finalize(() => {
+            this.isLoading = false
+          })
+        )
+
+        this.errorMsg$ = search$.pipe(
+          filter(res => res.Response !== 'True'),
+          share(),
+          pluck('Error'),
+        )
+
+        return search$.pipe(
+          pluck('Search')
+        )
+      }),
+      shareReplay(),
     )
   }
 
-  onSearch(query: string, e: KeyboardEvent): void {
-    if (e.code !== 'Enter') {
-      return
-    }
+  ngAfterViewInit() {
+    this.currentQuery$.subscribe((query) => {
+      this.searchEl.nativeElement.value = query
+    })
+  }
+
+  onSearch(query: string): void {
     this.searchQuery$.next(query)
   }
 }

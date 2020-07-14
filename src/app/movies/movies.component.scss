@@ -11,6 +11,10 @@
   &__grid {
     margin-top: 40px;
   }
+
+  &__loader {
+    margin-top: 20px;
+  }
 }
 
 .movies-grid {
@@ -58,4 +62,10 @@
       border-color: #2b6cb0;
     }
   }
+}
+
+.loader {
+  font-size: 48px;
+  text-align: center;
+  color: #fff;
 }

@@ -1,32 +1,44 @@
 <div class="movies">
   <div class="movies__title">Movie search tool</div>
 
-  <div class="movies__search-form">
+  <form class="movies__search-form">
     <input
+      name="search"
       autofocus
       class="search-form__input"
       type="text"
-      (keyup)="onSearch(search.value, $event)"
+      (keyup.enter)="onSearch(search.value)"
       #search
     />
-  </div>
-
-  <div class="movies-grid movies__grid">
-    <div *ngFor="let movie of movies$ | async" class="movies-grid__item">
-      <a [routerLink]="['/movies/' + movie.imdbID]">
-        <img
-          [src]="movie.Poster"
-          [alt]="movie.Title"
-          class="movies-grid__poster"
-        />
-        <div class="movies-grid__title">
-          {{ movie.Title }}
-        </div>
-        <div class="movies-grid__meta">
-          <div>Year: {{ movie.Year }}</div>
-          <div>Type: {{ movie.Type }}</div>
-        </div>
-      </a>
+  </form>
+  <ng-container *ngIf="!(errorMsg$ | async); else error">
+    <div
+      *ngIf="(movies$ | async) && !isLoading; else loader"
+      class="movies-grid movies__grid"
+    >
+      <div *ngFor="let movie of movies$ | async" class="movies-grid__item">
+        <a [routerLink]="['/movies/' + movie.imdbID]">
+          <img
+            [src]="movie.Poster"
+            [alt]="movie.Title"
+            class="movies-grid__poster"
+          />
+          <div class="movies-grid__title">
+            {{ movie.Title }}
+          </div>
+          <div class="movies-grid__meta">
+            <div>Year: {{ movie.Year }}</div>
+            <div>Type: {{ movie.Type }}</div>
+          </div>
+        </a>
+      </div>
     </div>
-  </div>
+  </ng-container>
 </div>
+
+<ng-template #error>
+  <div>Error: {{ errorMsg$ | async }}</div>
+</ng-template>
+<ng-template #loader>
+  <div class="loader movies__loader">Loading...</div>
+</ng-template>
