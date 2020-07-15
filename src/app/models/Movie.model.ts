@@ -7,5 +7,7 @@ export interface Movie {
   imdbRating?: string,
   Runtime?: string,
   Genre?: string,
-  Plot?: string
+  Plot?: string,
+  Response?: string,
+  Error?: string
 }

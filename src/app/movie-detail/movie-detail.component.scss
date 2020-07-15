@@ -21,7 +21,7 @@
     font-weight: 400;
 
     & > * + * {
-      margin-top: 3px;
+      margin-top: 6px;
     }
   }
 
@@ -31,4 +31,15 @@
     font-size: 16px;
     font-weight: 400;
   }
+}
+
+.loader {
+  font-size: 48px;
+  text-align: center;
+  color: #fff;
+}
+
+.error {
+  color: #fc8181;
+  font-weight: 600;
 }

@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { Observable } from 'rxjs';
+import { delay, pluck, shareReplay } from 'rxjs/operators';
 import { Movie } from '../models/Movie.model';
 import { MovieService } from '../services/movie.service';
-import { Observable } from 'rxjs';
-import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-movie-detail',
@@ -12,12 +13,18 @@ import { ActivatedRoute } from '@angular/router';
 export class MovieDetailComponent implements OnInit {
 
   movie$: Observable<Movie>
+  errorMsg$: Observable<string>
 
   constructor(private movieService: MovieService, private route: ActivatedRoute) { }
 
   ngOnInit(): void {
     const imdbId = this.route.snapshot.paramMap.get('id')
-    this.movie$ = this.movieService.findByimbdID(imdbId)
+    this.movie$ = this.movieService.findByimbdID(imdbId).pipe(
+      shareReplay()
+    )
+    this.errorMsg$ = this.movie$.pipe(
+      pluck('Error')
+    )
   }
 
 }

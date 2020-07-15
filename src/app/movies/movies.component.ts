@@ -52,7 +52,6 @@ export class MoviesComponent implements OnInit {
         )
 
         this.errorMsg$ = search$.pipe(
-          filter(res => res.Response !== 'True'),
           share(),
           pluck('Error'),
         )

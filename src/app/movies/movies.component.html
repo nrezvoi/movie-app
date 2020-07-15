@@ -12,10 +12,7 @@
     />
   </form>
   <ng-container *ngIf="!(errorMsg$ | async); else error">
-    <div
-      *ngIf="(movies$ | async) && !isLoading; else loader"
-      class="movies-grid movies__grid"
-    >
+    <div *ngIf="movies$ | async; else loader" class="movies-grid movies__grid">
       <div *ngFor="let movie of movies$ | async" class="movies-grid__item">
         <a [routerLink]="['/movies/' + movie.imdbID]">
           <img
