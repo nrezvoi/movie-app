@@ -1,7 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { merge, Observable, of, Subject } from 'rxjs';
-import { distinctUntilChanged, filter, pluck, share, switchMap, tap, shareReplay, debounceTime, delay, finalize, defaultIfEmpty, startWith } from 'rxjs/operators';
+import { distinctUntilChanged, filter, pluck, share, switchMap, tap, shareReplay, debounceTime, delay, finalize, defaultIfEmpty, startWith, map } from 'rxjs/operators';
 import { Movie } from "../models/Movie.model";
 import { MovieService } from "../services/movie.service";
 
@@ -33,7 +33,7 @@ export class MoviesComponent implements OnInit {
       this.currentQuery$,
       this.searchQuery$
     ).pipe(
-      filter((query: String) => query && query.trim() !== ''),
+      map((query: String) => query.trim()),
       distinctUntilChanged(),
       tap((query: string) => {
         this.router.navigate([], {
