@@ -19,11 +19,12 @@ export class MovieService {
 
   constructor(private http: HttpClient) { }
 
-  findBySearch(query: string): Observable<OmdbApiResponse> {
+  findBySearch(query: string, page: string): Observable<OmdbApiResponse> {
     return this.http.get<OmdbApiResponse>(this.omdbApiConfig.url, {
       params: {
         ...this.omdbApiConfig.defaultParams,
-        s: query
+        s: query,
+        page
       }
     })
   }
