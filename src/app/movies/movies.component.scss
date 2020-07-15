@@ -23,8 +23,12 @@
 
 .movies-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 40px 20px;
+
+  &__link {
+    text-decoration: none;
+  }
 
   &__poster {
     max-width: 100%;
@@ -64,6 +68,10 @@
 
     &:focus {
       border-color: #2b6cb0;
+    }
+
+    &::placeholder {
+      color: #CBD5E0;
     }
   }
 }

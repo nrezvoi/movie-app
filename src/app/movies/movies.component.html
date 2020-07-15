@@ -6,13 +6,14 @@
       class="search-form__input"
       type="text"
       (keyup.enter)="onSearch(search.value)"
+      placeholder="Movie title..."
       #search
     />
   </form>
   <ng-container *ngIf="!(errorMsg$ | async); else error">
-    <div *ngIf="movies$ | async; else loader" class="movies-grid movies__grid">
+    <div *ngIf="(movies$ | async) && !isLoading; else loader" class="movies-grid movies__grid">
       <div *ngFor="let movie of movies$ | async" class="movies-grid__item">
-        <a [routerLink]="['/movies/' + movie.imdbID]">
+        <a class="movies-grid__link" [routerLink]="['/movies/' + movie.imdbID]">
           <img
             [src]="movie.Poster"
             [alt]="movie.Title"

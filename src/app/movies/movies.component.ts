@@ -29,12 +29,17 @@ export class MoviesComponent implements OnInit {
     this.currentQuery$ = of(this.currentRoute.snapshot.queryParamMap.get('search')).pipe(
       share()
     )
-    this.movies$ = merge(
+
+    const params$ = merge(
       this.currentQuery$,
       this.searchQuery$
     ).pipe(
-      map((query: String) => query.trim()),
+      filter((query: string) => query && query.trim() !== ''),
+      map((query: string) => query.trim()),
       distinctUntilChanged(),
+    )
+
+    this.movies$ = params$.pipe(
       tap((query: string) => {
         this.router.navigate([], {
           queryParams: {
