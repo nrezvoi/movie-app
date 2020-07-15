@@ -26,6 +26,7 @@ export class MoviesComponent implements OnInit {
   constructor(private movieService: MovieService, private router: Router, private currentRoute: ActivatedRoute) {
   }
   ngOnInit(): void {
+
     this.currentQuery$ = of(this.currentRoute.snapshot.queryParamMap.get('search')).pipe(
       share()
     )
@@ -50,10 +51,10 @@ export class MoviesComponent implements OnInit {
       switchMap((query: string) => {
         this.isLoading = true
         const search$ = this.movieService.findBySearch(query).pipe(
-          shareReplay(),
           finalize(() => {
             this.isLoading = false
-          })
+          }),
+          shareReplay(),
         )
 
         this.errorMsg$ = search$.pipe(
