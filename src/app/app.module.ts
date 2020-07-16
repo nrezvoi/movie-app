@@ -10,8 +10,13 @@ import { NotFoundComponent } from './not-found/not-found.component';
 import { HeaderComponent } from './header/header.component';
 import { NgxPaginationModule } from 'ngx-pagination'
 
+import { NgxsModule } from '@ngxs/store'
+import { MovieState } from './state/movies.state'
+import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin'
+import { NgxsLoggerPluginModule } from '@ngxs/logger-plugin'
 
 @NgModule({
+
   declarations: [
     AppComponent,
     MoviesComponent,
@@ -24,7 +29,12 @@ import { NgxPaginationModule } from 'ngx-pagination'
     AppRoutingModule,
     FormsModule,
     HttpClientModule,
-    NgxPaginationModule
+    NgxPaginationModule,
+    NgxsModule.forRoot([
+      MovieState
+    ]),
+    NgxsReduxDevtoolsPluginModule.forRoot(),
+    NgxsLoggerPluginModule.forRoot()
   ],
   providers: [],
   bootstrap: [AppComponent]

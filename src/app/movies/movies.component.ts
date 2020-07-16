@@ -1,14 +1,11 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { merge, Observable, of, Subject } from 'rxjs';
-import { distinctUntilChanged, filter, pluck, share, switchMap, tap, shareReplay, debounceTime, delay, finalize, defaultIfEmpty, startWith, map } from 'rxjs/operators';
+import { Store } from '@ngxs/store';
+import { Observable } from 'rxjs';
+import { distinctUntilChanged, filter, map } from 'rxjs/operators';
+import { GetMovies } from '../actions/movies.actions';
 import { Movie } from "../models/Movie.model";
-import { MovieService } from "../services/movie.service";
-
-interface IParams {
-  page: string,
-  search: string
-}
+import { IParams } from '../state/movies.state';
 
 @Component({
   selector: 'app-movies',
@@ -17,21 +14,24 @@ interface IParams {
 })
 export class MoviesComponent implements OnInit {
 
-  movies$: Observable<Movie[]>
 
   @ViewChild('search')
   searchEl: ElementRef
 
-  errorMsg$: Observable<string>
-  params$: Observable<IParams>
-
-  isLoading: boolean = false
-
-  totalMovies: number
   perPage: number = 10
-  currentPage: number = 1
 
-  constructor(private movieService: MovieService, private router: Router, private currentRoute: ActivatedRoute) {
+  movies$: Observable<Movie[]>
+  isLoading$: Observable<boolean>
+  params$: Observable<IParams>
+  totalMovies$: Observable<number>
+  error$: Observable<string>
+
+  constructor(private store: Store, private router: Router, private currentRoute: ActivatedRoute) {
+    this.movies$ = this.store.select(state => state.movies.data)
+    this.isLoading$ = this.store.select(state => state.movies.isLoading)
+    this.params$ = this.store.select(state => state.movies.params)
+    this.totalMovies$ = this.store.select(state => state.movies.total)
+    this.error$ = this.store.select(state => state.movies.error)
   }
   ngOnInit(): void {
     this.params$ = this.currentRoute.queryParamMap.pipe(
@@ -41,9 +41,6 @@ export class MoviesComponent implements OnInit {
           page: x.get('page') || '1'
         }
       }),
-      tap((params: IParams) => {
-        this.currentPage = parseInt(params.page)
-      }),
       filter((params: IParams) => params.search && params.search.trim() !== ''),
       map((params: IParams) => {
         params.search = params.search.trim()
@@ -52,33 +49,11 @@ export class MoviesComponent implements OnInit {
       distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
     )
 
-    this.movies$ = this.params$.pipe(
-      switchMap((params: IParams) => this.findMoviesBySearch(params.search, params.page)),
-      startWith([]),
-      shareReplay()
-    )
-  }
-
-  findMoviesBySearch(query: string, page: string): Observable<Movie[]> {
-    this.isLoading = true
-    const search$ = this.movieService.findBySearch(query, page).pipe(
-      finalize(() => {
-        this.isLoading = false
-      }),
-      shareReplay()
-    )
-
-    this.errorMsg$ = search$.pipe(
-      share(),
-      pluck('Error'),
-    )
-
-    return search$.pipe(
-      tap((res) => {
-        this.totalMovies = parseFloat(res.totalResults) || 0
-      }),
-      pluck('Search'),
-    )
+    this.params$.pipe(
+      filter(() => !this.isCached())
+    ).subscribe((params: IParams) => {
+      this.store.dispatch(new GetMovies(params.search, params.page))
+    })
   }
 
   ngAfterViewInit() {
@@ -103,5 +78,13 @@ export class MoviesComponent implements OnInit {
         page
       }
     })
+  }
+
+  private isCached() {
+    const isMovies = this.store.snapshot().movies.data.length > 0
+    const isSearch = this.currentRoute.snapshot.queryParamMap.get('search') === this.store.snapshot().movies.params.search
+    const isPage = this.currentRoute.snapshot.queryParamMap.get('page') === this.store.snapshot().movies.params.page
+
+    return isMovies && isSearch && isPage
   }
 }

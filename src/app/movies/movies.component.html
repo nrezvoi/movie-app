@@ -10,9 +10,9 @@
       #search
     />
   </form>
-  <ng-container *ngIf="!(errorMsg$ | async); else error">
+  <ng-container *ngIf="!(error$ | async); else error">
     <div
-      *ngIf="(movies$ | async) && !isLoading; else loader"
+      *ngIf="(movies$ | async) && !(isLoading$ | async); else loader"
       class="movies-grid movies__grid"
     >
       <div
@@ -23,8 +23,8 @@
               : {
                   id: 'movies-pagination',
                   itemsPerPage: perPage,
-                  currentPage: currentPage,
-                  totalItems: totalMovies
+                  currentPage: (params$ | async)?.page ,
+                  totalItems: totalMovies$ | async
                 }
         "
         class="movies-grid__item"
@@ -56,7 +56,7 @@
 </div>
 
 <ng-template #error>
-  <div class="error movies__error">Error: {{ errorMsg$ | async }}</div>
+  <div class="error movies__error">Error: {{ error$ | async }}</div>
 </ng-template>
 <ng-template #loader>
   <div class="loader movies__loader">Loading...</div>
