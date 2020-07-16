@@ -5,7 +5,7 @@ import { distinctUntilChanged, filter, pluck, share, switchMap, tap, shareReplay
 import { Movie } from "../models/Movie.model";
 import { MovieService } from "../services/movie.service";
 
-interface InitialParams {
+interface IParams {
   page: string,
   search: string
 }
@@ -18,60 +18,43 @@ interface InitialParams {
 export class MoviesComponent implements OnInit {
 
   movies$: Observable<Movie[]>
-  private searchQuery$ = new Subject<string>()
-  private currentQuery$: Observable<String>
 
   @ViewChild('search')
   searchEl: ElementRef
 
   errorMsg$: Observable<string>
-  initialParams$: Observable<InitialParams>
+  params$: Observable<IParams>
 
   isLoading: boolean = false
-  page: string = '1'
 
   constructor(private movieService: MovieService, private router: Router, private currentRoute: ActivatedRoute) {
   }
   ngOnInit(): void {
-    this.initialParams$ = this.currentRoute.queryParamMap.pipe(
+    this.params$ = this.currentRoute.queryParamMap.pipe(
       map(x => {
         return {
-          search: x.get('search'),
-          page: x.get('page')
+          search: x.get('search') || '',
+          page: x.get('page') || '1'
         }
-      })
-    )
-
-    const initialSearch$ = this.initialParams$.pipe(
-      pluck('search')
-    )
-
-    this.movies$ = merge(
-      initialSearch$,
-      this.searchQuery$.pipe(
-        tap(() => this.page = '1')
-      ),
-    ).pipe(
-      filter((query: string) => query && query.trim() !== ''),
-      map((query: string) => query.trim()),
-      distinctUntilChanged(),
-      tap((query: string) => {
-        this.router.navigate([], {
-          queryParams: {
-            search: query,
-            page: this.page,
-          }
-        })
       }),
-      switchMap((query) => this.findMoviesBySearch(query)),
-      shareReplay(),
-      startWith([])
+      filter((params: IParams) => params.search && params.search.trim() !== ''),
+      map((params: IParams) => {
+        params.search = params.search.trim()
+        return params
+      }),
+      distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
+    )
+
+    this.movies$ = this.params$.pipe(
+      switchMap((params: IParams) => this.findMoviesBySearch(params.search, params.page)),
+      startWith([]),
+      shareReplay()
     )
   }
 
-  findMoviesBySearch(query: string): Observable<Movie[]> {
+  findMoviesBySearch(query: string, page: string): Observable<Movie[]> {
     this.isLoading = true
-    const search$ = this.movieService.findBySearch(query, this.page).pipe(
+    const search$ = this.movieService.findBySearch(query, page).pipe(
       finalize(() => {
         this.isLoading = false
       }),
@@ -89,12 +72,17 @@ export class MoviesComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    this.initialParams$.subscribe(({ search }) => {
-      this.searchEl.nativeElement.value = search
+    this.params$.subscribe((params) => {
+      this.searchEl.nativeElement.value = params.search
     })
   }
 
   onSearch(query: string): void {
-    this.searchQuery$.next(query)
+    this.router.navigate([], {
+      queryParams: {
+        search: query,
+        page: '1'
+      }
+    })
   }
 }
