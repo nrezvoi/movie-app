@@ -27,6 +27,10 @@ export class MoviesComponent implements OnInit {
 
   isLoading: boolean = false
 
+  totalMovies: number
+  perPage: number = 10
+  currentPage: number = 1
+
   constructor(private movieService: MovieService, private router: Router, private currentRoute: ActivatedRoute) {
   }
   ngOnInit(): void {
@@ -36,6 +40,9 @@ export class MoviesComponent implements OnInit {
           search: x.get('search') || '',
           page: x.get('page') || '1'
         }
+      }),
+      tap((params: IParams) => {
+        this.currentPage = parseInt(params.page)
       }),
       filter((params: IParams) => params.search && params.search.trim() !== ''),
       map((params: IParams) => {
@@ -67,6 +74,9 @@ export class MoviesComponent implements OnInit {
     )
 
     return search$.pipe(
+      tap((res) => {
+        this.totalMovies = parseFloat(res.totalResults) || 0
+      }),
       pluck('Search'),
     )
   }
@@ -82,6 +92,15 @@ export class MoviesComponent implements OnInit {
       queryParams: {
         search: query,
         page: '1'
+      }
+    })
+  }
+
+  onPageChange(page: number) {
+    this.router.navigate([], {
+      queryParams: {
+        search: this.currentRoute.snapshot.queryParamMap.get('search'),
+        page
       }
     })
   }

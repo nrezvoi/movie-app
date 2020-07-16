@@ -52,6 +52,12 @@
     }
   }
 
+  &__pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+  }
+
   @media(max-width: 1024px) {
     grid-template-columns: repeat(3, 1fr);
     column-gap: 40px;

@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, from } from 'rxjs';
+import { Observable, from, of } from 'rxjs';
 import { Movie } from '../models/Movie.model';
 
 import { OmdbApiResponse } from '../models/OmdbApiResponse.model'
+import { catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -26,7 +27,14 @@ export class MovieService {
         s: query,
         page
       }
-    })
+    }).pipe(
+      catchError(() => {
+        return of({
+          Response: 'False',
+          Error: 'API Error'
+        })
+      })
+    )
   }
 
   findByimbdID(imdbId: string): Observable<Movie> {
@@ -36,6 +44,13 @@ export class MovieService {
         i: imdbId,
         plot: 'full'
       }
-    })
+    }).pipe(
+      catchError(() => {
+        return of({
+          Response: 'False',
+          Error: 'API Error'
+        })
+      })
+    )
   }
 }

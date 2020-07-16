@@ -11,8 +11,24 @@
     />
   </form>
   <ng-container *ngIf="!(errorMsg$ | async); else error">
-    <div *ngIf="(movies$ | async) && !isLoading; else loader" class="movies-grid movies__grid">
-      <div *ngFor="let movie of movies$ | async" class="movies-grid__item">
+    <div
+      *ngIf="(movies$ | async) && !isLoading; else loader"
+      class="movies-grid movies__grid"
+    >
+      <div
+        *ngFor="
+          let movie of movies$
+            | async
+            | paginate
+              : {
+                  id: 'movies-pagination',
+                  itemsPerPage: perPage,
+                  currentPage: currentPage,
+                  totalItems: totalMovies
+                }
+        "
+        class="movies-grid__item"
+      >
         <a class="movies-grid__link" [routerLink]="['/movies/' + movie.imdbID]">
           <img
             [src]="movie.Poster"
@@ -29,6 +45,13 @@
         </a>
       </div>
     </div>
+
+    <pagination-controls
+      class="movies-grid__pagination"
+      *ngIf="(movies$ | async)?.length > 0"
+      (pageChange)="onPageChange($event)"
+      id="movies-pagination"
+    ></pagination-controls>
   </ng-container>
 </div>
 
