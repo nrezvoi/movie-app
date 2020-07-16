@@ -1,10 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, from, of } from 'rxjs';
-import { Movie } from '../models/Movie.model';
-
-import { OmdbApiResponse } from '../models/OmdbApiResponse.model'
+import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { Movie } from '../models/Movie.model';
+import { OmdbApiResponse } from '../models/OmdbApiResponse.model';
+
 
 @Injectable({
   providedIn: 'root'
