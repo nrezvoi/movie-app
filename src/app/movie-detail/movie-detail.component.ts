@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Store } from '@ngxs/store';
 import { Observable } from 'rxjs';
-import { pluck, shareReplay, share } from 'rxjs/operators';
+import { GetMovie } from '../actions/movies.actions';
 import { Movie } from '../models/Movie.model';
-import { MovieService } from '../services/movie.service';
 
 @Component({
   selector: 'app-movie-detail',
@@ -13,18 +13,21 @@ import { MovieService } from '../services/movie.service';
 export class MovieDetailComponent implements OnInit {
 
   movie$: Observable<Movie>
-  errorMsg$: Observable<string>
+  isLoading$: Observable<boolean>
+  error$: Observable<string>
 
-  constructor(private movieService: MovieService, private route: ActivatedRoute) { }
+  constructor(private store: Store, private route: ActivatedRoute) {
+    this.movie$ = this.store.select(state => state.movies.selected)
+    this.isLoading$ = this.store.select(state => state.movies.isLoading)
+    this.error$ = this.store.select(state => state.movies.error)
+  }
 
   ngOnInit(): void {
     const imdbId = this.route.snapshot.paramMap.get('id')
-    this.movie$ = this.movieService.findByimbdID(imdbId).pipe(
-      shareReplay()
-    )
-    this.errorMsg$ = this.movie$.pipe(
-      pluck('Error')
-    )
+    if (imdbId === this.store.snapshot().movies.selected?.imdbID) {
+      return
+    }
+    this.store.dispatch(new GetMovie(imdbId))
   }
 
 }

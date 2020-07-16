@@ -1,4 +1,4 @@
-<ng-container *ngIf="!(errorMsg$ | async); else error">
+<ng-container *ngIf="!(error$ | async); else error">
   <div *ngIf="movie$ | async as movie; else loader" class="movie">
     <img class="movie__poster" [src]="movie.Poster" [alt]="movie.Title" />
     <div class="movie__info">
@@ -16,7 +16,7 @@
 </ng-container>
 
 <ng-template #error>
-  <div class="error">Error: {{ errorMsg$ | async }}</div>
+  <div class="error">Error: {{ error$ | async }}</div>
 </ng-template>
 
 <ng-template #loader>

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core'
 import { Action, State, StateContext } from '@ngxs/store'
 import { skipWhile, tap } from 'rxjs/operators'
-import { GetMovies } from '../actions/movies.actions'
+import { GetMovie, GetMovies } from '../actions/movies.actions'
 import { Movie } from '../models/Movie.model'
 import { MovieService } from '../services/movie.service'
 
@@ -16,6 +16,7 @@ export class MovieStateModel {
   isLoading: boolean
   total: number
   error: string
+  selected: Movie
 }
 
 @State<MovieStateModel>({
@@ -28,7 +29,8 @@ export class MovieStateModel {
     },
     isLoading: false,
     error: '',
-    total: 0
+    total: 0,
+    selected: null
   }
 })
 @Injectable()
@@ -65,6 +67,27 @@ export class MovieState {
             page
           }
         })
+      })
+    )
+  }
+
+  @Action(GetMovie)
+  getMovie({ patchState }: StateContext<MovieStateModel>, { id }: GetMovie) {
+    patchState({
+      selected: null
+    })
+    return this.movieService.findByimbdID(id).pipe(
+      tap((res) => {
+        if (res.Error) {
+          patchState({
+            error: res.Error
+          })
+        } else {
+          patchState({
+            selected: res,
+            error: ''
+          })
+        }
       })
     )
   }
