@@ -14,6 +14,7 @@ import { NgxsModule } from '@ngxs/store'
 import { MovieState } from './state/movies.state'
 import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin'
 import { NgxsLoggerPluginModule } from '@ngxs/logger-plugin'
+import { environment } from 'src/environments/environment';
 
 @NgModule({
 
@@ -34,7 +35,9 @@ import { NgxsLoggerPluginModule } from '@ngxs/logger-plugin'
       MovieState
     ]),
     NgxsReduxDevtoolsPluginModule.forRoot(),
-    NgxsLoggerPluginModule.forRoot()
+    NgxsLoggerPluginModule.forRoot({
+      disabled: environment.production
+    })
   ],
   providers: [],
   bootstrap: [AppComponent]

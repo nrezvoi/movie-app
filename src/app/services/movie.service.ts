@@ -5,6 +5,8 @@ import { catchError } from 'rxjs/operators';
 import { Movie } from '../models/Movie.model';
 import { OmdbApiResponse } from '../models/OmdbApiResponse.model';
 
+import { environment } from '../../environments/environment'
+
 
 @Injectable({
   providedIn: 'root'
@@ -12,9 +14,9 @@ import { OmdbApiResponse } from '../models/OmdbApiResponse.model';
 export class MovieService {
 
   omdbApiConfig = {
-    url: 'http://www.omdbapi.com/',
+    url: environment.apiUrl,
     defaultParams: {
-      apiKey: 'f79aeba3'
+      apiKey: environment.apiKey
     }
   }
 
