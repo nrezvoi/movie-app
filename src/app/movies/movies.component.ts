@@ -63,6 +63,10 @@ export class MoviesComponent implements OnInit {
   }
 
   onSearch(query: string): void {
+    if (!this.searchEl.nativeElement.checkValidity()) {
+      this.searchEl.nativeElement.reportValidity()
+      return
+    }
     this.router.navigate([], {
       queryParams: {
         search: query,

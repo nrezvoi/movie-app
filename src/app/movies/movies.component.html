@@ -8,6 +8,8 @@
       (keyup.enter)="onSearch(search.value)"
       placeholder="Movie title..."
       #search
+      required
+      minlength="3"
     />
   </form>
   <ng-container *ngIf="!(error$ | async); else error">
